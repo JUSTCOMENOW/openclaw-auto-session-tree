@@ -1,0 +1,50 @@
+# OpenClaw Skill Spec v1.1
+name: auto-session-tree
+version: 1.0.0
+author: king
+description: 自动会话树 | 向量 ID 绑定 | 前置检索解读 | 信息树延展 | 自动压缩
+license: MIT
+type: context-agent
+
+# 依赖
+dependencies:
+  python:
+    - pyyaml>=6.0
+  cli:
+    - jq
+    - sqlite3
+
+# 上下文前置钩子（对话前自动执行）
+context_hooks:
+  ingest:
+    pre:
+      - name: retrieve_session_tree
+        script: hooks/pre_ingest_retrieve.py
+        trigger: always
+        args:
+          - auto_parse
+          - info_tree_extend
+
+# 注册内置命令
+commands:
+  - name: session:tree
+    description: 查看会话树
+    script: bash scripts/cli.sh tree
+  - name: session:trace
+    description: 回溯会话逻辑链
+    script: bash scripts/cli.sh trace {session_id}
+  - name: info:search
+    description: 搜索信息树关键词
+    script: bash scripts/cli.sh info {keyword}
+  - name: vector:rebuild
+    description: 重建向量索引
+    script: bash scripts/cli.sh rebuild
+  - name: skill:init
+    description: 初始化目录结构
+    script: bash scripts/cli.sh init
+
+# 配置覆盖（可选，需用户确认后启用）
+# config_overrides:
+#   agents.defaults.memory.enabled: true
+#   agents.defaults.memory.sessionTree: true
+#   agents.defaults.memory.autoLinkVector: true
